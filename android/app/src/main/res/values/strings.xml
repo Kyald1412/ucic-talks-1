@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">JadwalMatkul</string>
+    <string name="title_matkul_list">Mata kuliah</string>
+    <string name="title_matkul_detail">Matkul Detail</string>
 </resources>

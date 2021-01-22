@@ -3,7 +3,6 @@ package com.kyald.jadwalmatkul;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
@@ -13,19 +12,13 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.kyald.jadwalmatkul.model.BaseResponse;
 import com.kyald.jadwalmatkul.model.MatkulDataResponse;
 import com.kyald.jadwalmatkul.network.GetDataService;
-import com.kyald.jadwalmatkul.utils.Constants;
 import com.kyald.jadwalmatkul.network.RetrofitClientInstance;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import retrofit2.Call;
 import retrofit2.Callback;

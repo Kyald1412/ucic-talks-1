@@ -17,15 +17,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.kyald.jadwalmatkul.model.BaseResponse;
-import com.kyald.jadwalmatkul.model.MatkulContent;
+import com.kyald.jadwalmatkul.model.MatkulDataResponse;
+import com.kyald.jadwalmatkul.network.GetDataService;
 import com.kyald.jadwalmatkul.utils.Constants;
-import com.kyald.jadwalmatkul.utils.RequestHandler;
+import com.kyald.jadwalmatkul.network.RetrofitClientInstance;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MatkulListActivity extends AppCompatActivity {
 
@@ -60,76 +64,33 @@ public class MatkulListActivity extends AppCompatActivity {
     }
 
     private void getMatkulList() {
-        class GetMatkul extends AsyncTask<Void, Void, BaseResponse> {
-            ProgressDialog loading;
 
+        ProgressDialog progressDoalog;
+        progressDoalog = new ProgressDialog(MatkulListActivity.this);
+        progressDoalog.setMessage("Loading....");
+        progressDoalog.show();
+
+        /*Create handle for the RetrofitInstance interface*/
+        GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
+        Call<MatkulDataResponse> call = service.getAllMatkul();
+        call.enqueue(new Callback<MatkulDataResponse>() {
             @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                loading = ProgressDialog.show(MatkulListActivity.this, "Fetching...", "Wait...", false, false);
-            }
+            public void onResponse(Call<MatkulDataResponse> call, Response<MatkulDataResponse> response) {
+                progressDoalog.dismiss();
 
-            @Override
-            protected void onPostExecute(BaseResponse s) {
-                super.onPostExecute(s);
-                loading.dismiss();
-
-                if (s.code == 200) {
-                    showMatkul(s.s);
-                } else {
-                    showMessage(s.s);
+                if(response.code() == 200){
+                    recyclerView.setAdapter(new MatkulListAdapter(response.body().getBody()));
                 }
-            }
 
-
-            private void showMessage(String s) {
-                try {
-                    JSONObject resultJsonObject = new JSONObject(s);
-                    String message = (String) resultJsonObject.get("message");
-
-                    Toast.makeText(MatkulListActivity.this, message, Toast.LENGTH_SHORT).show();
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            private void showMatkul(String s) {
-                try {
-                    JSONObject resultJsonObject = new JSONObject(s);
-                    JSONArray restulJsonArray = resultJsonObject.getJSONArray("body");
-
-                    MatkulContent.ITEMS.clear();
-
-                    for (int i = 0; i < restulJsonArray.length(); i++) {
-                        try {
-                            JSONObject jsonObject = restulJsonArray.getJSONObject(i);
-
-                            String id = (String) jsonObject.get("id");
-                            String id_hari = (String) jsonObject.get("id_hari");
-                            String matkul = (String) jsonObject.get("matkul");
-                            String hari = (String) jsonObject.get("hari");
-
-                            MatkulContent.ITEMS.add(new MatkulContent.MatkulItem(id, matkul, hari, id_hari));
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    recyclerView.setAdapter(new MatkulListAdapter(MatkulContent.ITEMS));
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
             }
 
             @Override
-            protected BaseResponse doInBackground(Void... params) {
-                RequestHandler rh = new RequestHandler();
-                return rh.sendGetRequest(Constants.URL_GET_MATKUL);
+            public void onFailure(Call<MatkulDataResponse> call, Throwable t) {
+                progressDoalog.dismiss();
+                Toast.makeText(MatkulListActivity.this, "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
             }
-        }
-        GetMatkul ge = new GetMatkul();
-        ge.execute();
+        });
+
     }
 
     @Override

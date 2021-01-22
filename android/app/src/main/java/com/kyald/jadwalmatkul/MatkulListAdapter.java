@@ -9,16 +9,17 @@ import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.kyald.jadwalmatkul.model.MatkulContent;
+import com.kyald.jadwalmatkul.model.MatkulData;
+import com.kyald.jadwalmatkul.model.MatkulDataResponse;
 
 import java.util.List;
 
 public class MatkulListAdapter
         extends RecyclerView.Adapter<MatkulListAdapter.ViewHolder> {
 
-    private final List<MatkulContent.MatkulItem> mValues;
+    private final List<MatkulData> mValues;
 
-    public MatkulListAdapter(List<MatkulContent.MatkulItem> mValues) {
+    public MatkulListAdapter(List<MatkulData> mValues) {
         this.mValues = mValues;
     }
 
@@ -31,8 +32,8 @@ public class MatkulListAdapter
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
-        holder.mIdView.setText(mValues.get(position).id);
-        holder.mContentView.setText(mValues.get(position).hari + " - " + mValues.get(position).matkul);
+        holder.mIdView.setText(mValues.get(position).getId());
+        holder.mContentView.setText(mValues.get(position).getHari() + " - " + mValues.get(position).getMatkul());
         holder.itemView.setTag(mValues.get(position));
         holder.itemView.setOnClickListener(mOnClickListener);
     }
@@ -57,13 +58,13 @@ public class MatkulListAdapter
     private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            MatkulContent.MatkulItem item = ( MatkulContent.MatkulItem) view.getTag();
+            MatkulData item = ( MatkulData) view.getTag();
             Context context = view.getContext();
             Intent intent = new Intent(context, MatkulDetailActivity.class);
-            intent.putExtra(MatkulDetailActivity.ARG_ITEM_ID, item.id);
-            intent.putExtra(MatkulDetailActivity.ARG_HARI, item.hari);
-            intent.putExtra(MatkulDetailActivity.ARG_HARI_ID, item.id_hari);
-            intent.putExtra(MatkulDetailActivity.ARG_MATKUL, item.matkul);
+            intent.putExtra(MatkulDetailActivity.ARG_ITEM_ID, item.getId());
+            intent.putExtra(MatkulDetailActivity.ARG_HARI, item.getHari());
+            intent.putExtra(MatkulDetailActivity.ARG_HARI_ID, item.getId_hari());
+            intent.putExtra(MatkulDetailActivity.ARG_MATKUL, item.getMatkul());
 
             context.startActivity(intent);
         }

@@ -2,15 +2,18 @@ package com.kyald.jadwalmatkul.model;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class BaseResponse {
+public class MatkulDataResponse {
+
     @SerializedName("message")
     private String message;
+    @SerializedName("body")
+    private List<MatkulData> body;
 
-    public BaseResponse(String message) {
+    public MatkulDataResponse(String message, List<MatkulData> body) {
         this.message = message;
+        this.body = body;
     }
 
     public String getMessage() {
@@ -20,4 +23,13 @@ public class BaseResponse {
     public void setMessage(String message) {
         this.message = message;
     }
+
+    public List<MatkulData> getBody() {
+        return body;
+    }
+
+    public void setBody(List<MatkulData> body) {
+        this.body = body;
+    }
 }
+

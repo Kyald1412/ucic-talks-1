@@ -14,13 +14,18 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.kyald.jadwalmatkul.model.BaseResponse;
+import com.kyald.jadwalmatkul.network.GetDataService;
 import com.kyald.jadwalmatkul.utils.Constants;
-import com.kyald.jadwalmatkul.utils.RequestHandler;
+import com.kyald.jadwalmatkul.network.RetrofitClientInstance;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -35,7 +40,7 @@ public class LoginActivity extends AppCompatActivity {
 
         boolean isLoggedIn = mSettings.getBoolean("is_logged_in", false);
 
-        if(isLoggedIn){
+        if (isLoggedIn) {
             showMatkulList();
             finish();
         }
@@ -60,54 +65,29 @@ public class LoginActivity extends AppCompatActivity {
     private void login() {
         final String username = ((EditText) findViewById(R.id.edtUsername)).getText().toString().trim();
         final String password = ((EditText) findViewById(R.id.edtPassword)).getText().toString().trim();
+        ProgressDialog progressDoalog;
+        progressDoalog = new ProgressDialog(LoginActivity.this);
+        progressDoalog.setMessage("Loading....");
+        progressDoalog.show();
 
-        class UpdateEmployee extends AsyncTask<Void, Void, BaseResponse> {
-            ProgressDialog loading;
-
+        /*Create handle for the RetrofitInstance interface*/
+        GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
+        Call<BaseResponse> call = service.postLogin(username, password);
+        call.enqueue(new Callback<BaseResponse>() {
             @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                loading = ProgressDialog.show(LoginActivity.this, "Updating...", "Wait...", false, false);
-            }
+            public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
+                progressDoalog.dismiss();
 
-            @Override
-            protected void onPostExecute(BaseResponse s) {
-                super.onPostExecute(s);
-                loading.dismiss();
-
-                if (s.code == 200){
+                if (response.code() == 200) {
                     showMatkulList();
-                } else {
-
-                    try {
-                        JSONObject resultJsonObject = new JSONObject(s.s);
-                        String message = (String) resultJsonObject.get("message");
-
-                        Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
                 }
-
             }
 
             @Override
-            protected BaseResponse doInBackground(Void... params) {
-                HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put("username", username);
-                hashMap.put("password", password);
-
-                RequestHandler rh = new RequestHandler();
-
-                BaseResponse s = rh.sendPostRequest(Constants.URL_LOGIN, hashMap);
-
-                return s;
+            public void onFailure(Call<BaseResponse> call, Throwable t) {
+                progressDoalog.dismiss();
+                Toast.makeText(LoginActivity.this, "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
             }
-        }
-
-        UpdateEmployee ue = new UpdateEmployee();
-        ue.execute();
+        });
     }
 }

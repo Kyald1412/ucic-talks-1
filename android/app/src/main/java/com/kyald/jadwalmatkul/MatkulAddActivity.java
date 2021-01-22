@@ -18,8 +18,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.kyald.jadwalmatkul.model.BaseResponse;
+import com.kyald.jadwalmatkul.model.MatkulHariResponse;
+import com.kyald.jadwalmatkul.network.GetDataService;
 import com.kyald.jadwalmatkul.utils.Constants;
-import com.kyald.jadwalmatkul.utils.RequestHandler;
+import com.kyald.jadwalmatkul.network.RetrofitClientInstance;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +29,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * An activity representing a single Detail detail screen. This
@@ -94,129 +100,70 @@ public class MatkulAddActivity extends AppCompatActivity {
     }
 
     private void getHari() {
-        class GetHari extends AsyncTask<Void, Void, BaseResponse> {
-            ProgressDialog loading;
 
+        ProgressDialog progressDoalog;
+        progressDoalog = new ProgressDialog(MatkulAddActivity.this);
+        progressDoalog.setMessage("Loading....");
+        progressDoalog.show();
+
+        /*Create handle for the RetrofitInstance interface*/
+        GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
+        Call<MatkulHariResponse> call = service.getHari();
+        call.enqueue(new Callback<MatkulHariResponse>() {
             @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                loading = ProgressDialog.show(MatkulAddActivity.this, "Fetching...", "Wait...", false, false);
-            }
+            public void onResponse(Call<MatkulHariResponse> call, Response<MatkulHariResponse> response) {
+                progressDoalog.dismiss();
 
-            @Override
-            protected void onPostExecute(BaseResponse s) {
-                super.onPostExecute(s);
-                loading.dismiss();
-
-                if(s.code == 200){
-                    showMatkul(s.s);
-                } else {
-                    showMessage(s.s);
-                }
-            }
-
-
-            private void showMessage(String s) {
-                try {
-                    JSONObject resultJsonObject = new JSONObject(s);
-                    String message = (String) resultJsonObject.get("message");
-
-                    Toast.makeText(MatkulAddActivity.this, message, Toast.LENGTH_SHORT).show();
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            private void showMatkul(String s) {
-                try {
-                    JSONObject resultJsonObject = new JSONObject(s);
-                    JSONArray restulJsonArray = resultJsonObject.getJSONArray("body");
-
+                if (response.code() == 200) {
                     ArrayList<String> daftarHari = new ArrayList<String>();
 
-                    for (int i = 0; i < restulJsonArray.length(); i++) {
-                        try {
-                            JSONObject jsonObject = restulJsonArray.getJSONObject(i);
-
-                            String id = (String) jsonObject.get("id");
-                            String hari = (String) jsonObject.get("hari");
-
-                            daftarHari.add(hari);
-
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                    for (int i = 0; i < response.body().getBody().size(); i++) {
+                        daftarHari.add(response.body().getBody().get(i).getHari());
                     }
 
                     setupSpinner(daftarHari);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
+
             }
 
             @Override
-            protected BaseResponse doInBackground(Void... params) {
-                RequestHandler rh = new RequestHandler();
-                return rh.sendGetRequest(Constants.URL_GET_HARI);
+            public void onFailure(Call<MatkulHariResponse> call, Throwable t) {
+                progressDoalog.dismiss();
+                Toast.makeText(MatkulAddActivity.this, "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
             }
-        }
-        GetHari ge = new GetHari();
-        ge.execute();
+        });
     }
 
 
     private void createMatkul() {
         final String matkul = ((EditText) findViewById(R.id.edtMatkul)).getText().toString().trim();
 
-        class CreateMatkul extends AsyncTask<Void, Void, BaseResponse> {
-            ProgressDialog loading;
 
+        ProgressDialog progressDoalog;
+        progressDoalog = new ProgressDialog(MatkulAddActivity.this);
+        progressDoalog.setMessage("Loading....");
+        progressDoalog.show();
+
+        /*Create handle for the RetrofitInstance interface*/
+        GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
+        Call<BaseResponse> call = service.postCreateMatkul(id_hari,matkul);
+        call.enqueue(new Callback<BaseResponse>() {
             @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                loading = ProgressDialog.show(MatkulAddActivity.this, "Updating...", "Wait...", false, false);
-            }
+            public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
+                progressDoalog.dismiss();
 
-            @Override
-            protected void onPostExecute(BaseResponse s) {
-                super.onPostExecute(s);
-                loading.dismiss();
-                showMessage(s.s);
-            }
+                Toast.makeText(MatkulAddActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
 
-            private void showMessage(String s) {
-                try {
-                    JSONObject resultJsonObject = new JSONObject(s);
-                    String message = (String) resultJsonObject.get("message");
 
-                    Toast.makeText(MatkulAddActivity.this, message, Toast.LENGTH_SHORT).show();
-
-                    finish();
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
             }
 
             @Override
-            protected BaseResponse doInBackground(Void... params) {
-                HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put(ARG_HARI_ID, id_hari);
-                hashMap.put(ARG_MATKUL, matkul);
-
-                RequestHandler rh = new RequestHandler();
-
-                BaseResponse s = rh.sendPostRequest(Constants.URL_POST_CREATE_MATKUL, hashMap);
-
-                return s;
+            public void onFailure(Call<BaseResponse> call, Throwable t) {
+                progressDoalog.dismiss();
+                Toast.makeText(MatkulAddActivity.this, "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
             }
-        }
+        });
 
-        CreateMatkul ue = new CreateMatkul();
-        ue.execute();
     }
 
     @Override

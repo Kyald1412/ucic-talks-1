@@ -5,12 +5,12 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.kyald.jadwalmatkul.model.BaseResponse;
-import com.kyald.jadwalmatkul.model.MatkulContent;
+import com.kyald.jadwalmatkul.model.MatkulDataResponse;
+import com.kyald.jadwalmatkul.model.MatkulHariResponse;
+import com.kyald.jadwalmatkul.network.GetDataService;
 import com.kyald.jadwalmatkul.utils.Constants;
-import com.kyald.jadwalmatkul.utils.RequestHandler;
+import com.kyald.jadwalmatkul.network.RetrofitClientInstance;
 
 import androidx.appcompat.widget.Toolbar;
 
@@ -33,7 +33,10 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * An activity representing a single Detail detail screen. This
@@ -119,7 +122,7 @@ public class MatkulDetailActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 // memunculkan toast + value Spinner yang dipilih (diambil dari adapter)
 //                Toast.makeText(TWOHLayoutSpinner.this, "Selected "+ adapter.getItem(i), Toast.LENGTH_SHORT).show();
-                id_hari = String.valueOf(i+1);
+                id_hari = String.valueOf(i + 1);
                 hari = adapter.getItem(i);
             }
 
@@ -131,179 +134,98 @@ public class MatkulDetailActivity extends AppCompatActivity {
     }
 
     private void getHari() {
-        class GetHari extends AsyncTask<Void, Void, BaseResponse> {
-            ProgressDialog loading;
 
+        ProgressDialog progressDoalog;
+        progressDoalog = new ProgressDialog(MatkulDetailActivity.this);
+        progressDoalog.setMessage("Loading....");
+        progressDoalog.show();
+
+        /*Create handle for the RetrofitInstance interface*/
+        GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
+        Call<MatkulHariResponse> call = service.getHari();
+        call.enqueue(new Callback<MatkulHariResponse>() {
             @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                loading = ProgressDialog.show(MatkulDetailActivity.this, "Fetching...", "Wait...", false, false);
-            }
+            public void onResponse(Call<MatkulHariResponse> call, Response<MatkulHariResponse> response) {
+                progressDoalog.dismiss();
 
-            @Override
-            protected void onPostExecute(BaseResponse s) {
-                super.onPostExecute(s);
-                loading.dismiss();
-
-                if(s.code == 200){
-                    showMatkul(s.s);
-                } else {
-                    showMessage(s.s);
-                }
-            }
-
-
-            private void showMessage(String s) {
-                try {
-                    JSONObject resultJsonObject = new JSONObject(s);
-                    String message = (String) resultJsonObject.get("message");
-
-                    Toast.makeText(MatkulDetailActivity.this, message, Toast.LENGTH_SHORT).show();
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            private void showMatkul(String s) {
-                try {
-                    JSONObject resultJsonObject = new JSONObject(s);
-                    JSONArray restulJsonArray = resultJsonObject.getJSONArray("body");
-
+                if (response.code() == 200) {
                     ArrayList<String> daftarHari = new ArrayList<String>();
 
-                    for (int i = 0; i < restulJsonArray.length(); i++) {
-                        try {
-                            JSONObject jsonObject = restulJsonArray.getJSONObject(i);
-
-                            String id = (String) jsonObject.get("id");
-                            String hari = (String) jsonObject.get("hari");
-
-                            daftarHari.add(hari);
-
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                    for (int i = 0; i < response.body().getBody().size(); i++) {
+                        daftarHari.add(response.body().getBody().get(i).getHari());
                     }
 
                     setupSpinner(daftarHari);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
+
             }
 
             @Override
-            protected BaseResponse doInBackground(Void... params) {
-                RequestHandler rh = new RequestHandler();
-                return rh.sendGetRequest(Constants.URL_GET_HARI);
+            public void onFailure(Call<MatkulHariResponse> call, Throwable t) {
+                progressDoalog.dismiss();
+                Toast.makeText(MatkulDetailActivity.this, "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
             }
-        }
-        GetHari ge = new GetHari();
-        ge.execute();
+        });
     }
 
 
     private void updateMatkul() {
         final String matkul = ((EditText) findViewById(R.id.edtMatkul)).getText().toString().trim();
 
-        class UpdateEmployee extends AsyncTask<Void, Void, BaseResponse> {
-            ProgressDialog loading;
+        ProgressDialog progressDoalog;
+        progressDoalog = new ProgressDialog(MatkulDetailActivity.this);
+        progressDoalog.setMessage("Loading....");
+        progressDoalog.show();
 
+        /*Create handle for the RetrofitInstance interface*/
+        GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
+        Call<BaseResponse> call = service.postUpdateMatkul(id, id_hari, matkul);
+        call.enqueue(new Callback<BaseResponse>() {
             @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                loading = ProgressDialog.show(MatkulDetailActivity.this, "Updating...", "Wait...", false, false);
-            }
+            public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
+                progressDoalog.dismiss();
 
-            @Override
-            protected void onPostExecute(BaseResponse s) {
-                super.onPostExecute(s);
-                loading.dismiss();
-                showMessage(s.s);
-            }
-
-            private void showMessage(String s) {
-                try {
-                    JSONObject resultJsonObject = new JSONObject(s);
-                    String message = (String) resultJsonObject.get("message");
-
-                    Toast.makeText(MatkulDetailActivity.this, message, Toast.LENGTH_SHORT).show();
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                Toast.makeText(MatkulDetailActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
-            protected BaseResponse doInBackground(Void... params) {
-                HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put(ARG_ITEM_ID, id);
-                hashMap.put(ARG_HARI_ID, id_hari);
-                hashMap.put(ARG_MATKUL, matkul);
-
-                RequestHandler rh = new RequestHandler();
-
-                BaseResponse s = rh.sendPostRequest(Constants.URL_POST_UPDATE_MATKUL, hashMap);
-
-                return s;
+            public void onFailure(Call<BaseResponse> call, Throwable t) {
+                progressDoalog.dismiss();
+                Toast.makeText(MatkulDetailActivity.this, "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
             }
-        }
+        });
 
-        UpdateEmployee ue = new UpdateEmployee();
-        ue.execute();
     }
 
 
     private void deleteMatkul() {
 
-        class UpdateEmployee extends AsyncTask<Void, Void, BaseResponse> {
-            ProgressDialog loading;
 
+        ProgressDialog progressDoalog;
+        progressDoalog = new ProgressDialog(MatkulDetailActivity.this);
+        progressDoalog.setMessage("Loading....");
+        progressDoalog.show();
+
+        /*Create handle for the RetrofitInstance interface*/
+        GetDataService service = RetrofitClientInstance.getRetrofitInstance().create(GetDataService.class);
+        Call<BaseResponse> call = service.postDeleteMatkul(id);
+        call.enqueue(new Callback<BaseResponse>() {
             @Override
-            protected void onPreExecute() {
-                super.onPreExecute();
-                loading = ProgressDialog.show(MatkulDetailActivity.this, "Updating...", "Wait...", false, false);
-            }
+            public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
+                progressDoalog.dismiss();
 
-            @Override
-            protected void onPostExecute(BaseResponse s) {
-                super.onPostExecute(s);
-                loading.dismiss();
-                showMessage(s.s);
-            }
-
-            private void showMessage(String s) {
-                try {
-                    JSONObject resultJsonObject = new JSONObject(s);
-                    String message = (String) resultJsonObject.get("message");
-
-                    Toast.makeText(MatkulDetailActivity.this, message, Toast.LENGTH_SHORT).show();
-
-                    finish();
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                Toast.makeText(MatkulDetailActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                finish();
             }
 
             @Override
-            protected BaseResponse doInBackground(Void... params) {
-                HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put(ARG_ITEM_ID, id);
-
-                RequestHandler rh = new RequestHandler();
-
-                BaseResponse s = rh.sendPostRequest(Constants.URL_DELETE_MATKUL, hashMap);
-
-                return s;
+            public void onFailure(Call<BaseResponse> call, Throwable t) {
+                progressDoalog.dismiss();
+                Toast.makeText(MatkulDetailActivity.this, "Something went wrong...Please try later!", Toast.LENGTH_SHORT).show();
             }
-        }
-
-        UpdateEmployee ue = new UpdateEmployee();
-        ue.execute();
+        });
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();

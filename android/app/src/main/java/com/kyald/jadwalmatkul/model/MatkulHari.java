@@ -1,23 +1,36 @@
 package com.kyald.jadwalmatkul.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class MatkulHari {
 
-    public static final List<Hari> ITEMS = new ArrayList<Hari>();
+    @SerializedName("id")
+    private String id;
+    @SerializedName("hari")
+    private String hari;
 
-    private static void addItem(Hari item) {
-        ITEMS.add(item);
+    public MatkulHari(String id, String hari) {
+        this.id = id;
+        this.hari = hari;
     }
 
-    public static class Hari {
-        public final String id;
-        public final String hari;
+    public String getId() {
+        return id;
+    }
 
-        public Hari(String id, String hari) {
-            this.id = id;
-            this.hari = hari;
-        }
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getHari() {
+        return hari;
+    }
+
+    public void setHari(String hari) {
+        this.hari = hari;
     }
 }
+

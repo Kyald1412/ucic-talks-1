@@ -67,7 +67,39 @@ public class RequestHandler {
             os.close();
             responseCode = conn.getResponseCode();
 
-            Log.e("RESPONSE CODE ", "r  " + conn.getErrorStream());
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                sb = new StringBuilder();
+                String response;
+                //Reading server response
+                while ((response = br.readLine()) != null) {
+                    sb.append(response);
+                }
+            } else {
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+                sb = new StringBuilder();
+                String response;
+                //Reading server response
+                while ((response = br.readLine()) != null) {
+                    sb.append(response);
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return new BaseResponse(responseCode, sb.toString());
+    }
+
+    public BaseResponse sendGetRequest(String requestURL) {
+        StringBuilder sb = new StringBuilder();
+        int responseCode = 0;
+
+        try {
+            URL url = new URL(requestURL);
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            responseCode = conn.getResponseCode();
 
             if (responseCode == HttpsURLConnection.HTTP_OK) {
                 BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -87,38 +119,6 @@ public class RequestHandler {
                 }
             }
 
-//            if (responseCode == HttpsURLConnection.HTTP_OK) {
-//
-//                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-//                sb = new StringBuilder();
-//                String response;
-//                //Reading server response
-//                while ((response = br.readLine()) != null) {
-//                    sb.append(response);
-//                }
-//
-//            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return new BaseResponse(responseCode, sb.toString());
-    }
-
-    public BaseResponse sendGetRequest(String requestURL) {
-        StringBuilder sb = new StringBuilder();
-        int responseCode = 0;
-
-        try {
-            URL url = new URL(requestURL);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
-
-            String s;
-            while ((s = bufferedReader.readLine()) != null) {
-                sb.append(s + "\n");
-            }
         } catch (Exception e) {
         }
         return new BaseResponse(responseCode, sb.toString());
@@ -130,12 +130,25 @@ public class RequestHandler {
 
         try {
             URL url = new URL(requestURL + id);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            responseCode = conn.getResponseCode();
 
-            String s;
-            while ((s = bufferedReader.readLine()) != null) {
-                sb.append(s + "\n");
+            if (responseCode == HttpsURLConnection.HTTP_OK) {
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                sb = new StringBuilder();
+                String response;
+                //Reading server response
+                while ((response = br.readLine()) != null) {
+                    sb.append(response);
+                }
+            } else {
+                BufferedReader br = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
+                sb = new StringBuilder();
+                String response;
+                //Reading server response
+                while ((response = br.readLine()) != null) {
+                    sb.append(response);
+                }
             }
         } catch (Exception e) {
         }

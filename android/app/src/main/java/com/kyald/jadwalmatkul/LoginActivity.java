@@ -51,6 +51,8 @@ public class LoginActivity extends AppCompatActivity {
 
 
     private void showMatkulList() {
+        mSettings.edit().putBoolean("is_logged_in", true).apply();
+
         Intent intent = new Intent(LoginActivity.this, MatkulListActivity.class);
         startActivity(intent);
     }

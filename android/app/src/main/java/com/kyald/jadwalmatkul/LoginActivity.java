@@ -1,6 +1,7 @@
 package com.kyald.jadwalmatkul;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -31,6 +32,10 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setTitle(getTitle());
+        
         mSettings = PreferenceManager.getDefaultSharedPreferences(this);
 
         boolean isLoggedIn = mSettings.getBoolean("is_logged_in", false);

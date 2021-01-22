@@ -13,9 +13,10 @@
     
     $item = new Matkul($db);
     
-    $data = json_decode(file_get_contents("php://input"));
-    
-    $item->id = $data->id;
+    // $data = json_decode(file_get_contents("php://input"));    
+    // $item->id = $data->id;
+
+    $item->id = isset($_POST['id']) ? $_POST['id'] : die();
     
     if($item->deleteMatkul()){
         http_response_code(200);

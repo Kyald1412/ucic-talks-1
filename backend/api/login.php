@@ -14,11 +14,13 @@
     $item = new Users($db);
     
 
-    $data = json_decode(file_get_contents("php://input"));
+    // $data = json_decode(file_get_contents("php://input"));
 
-    
-    $item->username = $data->username;
-    $item->password = $data->password;
+    $item->username = isset($_POST['username']) ? $_POST['username'] : die();
+    $item->username = isset($_POST['password']) ? $_POST['password'] : die();
+
+    // $item->username = $data->username;
+    // $item->password = $data->password;
   
     $item->login();
 

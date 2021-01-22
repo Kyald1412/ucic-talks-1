@@ -22,4 +22,13 @@
     <style name="Theme.JadwalMatkul.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.JadwalMatkul.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="Theme.JadwalMatkul.NoActionBar.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.JadwalMatkul.NoActionBar.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.JadwalMatkul.NoActionBar.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

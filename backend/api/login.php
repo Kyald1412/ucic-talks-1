@@ -17,7 +17,7 @@
     // $data = json_decode(file_get_contents("php://input"));
 
     $item->username = isset($_POST['username']) ? $_POST['username'] : die();
-    $item->username = isset($_POST['password']) ? $_POST['password'] : die();
+    $item->password = isset($_POST['password']) ? $_POST['password'] : die();
 
     // $item->username = $data->username;
     // $item->password = $data->password;

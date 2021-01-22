@@ -5,23 +5,19 @@ import java.util.List;
 
 public class MatkulHari {
 
-    public static final List<MatkulItem> ITEMS = new ArrayList<MatkulItem>();
+    public static final List<Hari> ITEMS = new ArrayList<Hari>();
 
-    private static void addItem(MatkulItem item) {
+    private static void addItem(Hari item) {
         ITEMS.add(item);
     }
 
-    public static class MatkulItem {
+    public static class Hari {
         public final String id;
-        public final String matkul;
         public final String hari;
-        public final String id_hari;
 
-        public MatkulItem(String id, String matkul, String hari, String id_hari) {
+        public Hari(String id, String hari) {
             this.id = id;
-            this.matkul = matkul;
             this.hari = hari;
-            this.id_hari = id_hari;
         }
     }
 }

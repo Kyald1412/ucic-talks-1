@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import com.kyald.jadwalmatkul.model.BaseResponse;
 import com.kyald.jadwalmatkul.network.GetDataService;
-import com.kyald.jadwalmatkul.utils.Constants;
 import com.kyald.jadwalmatkul.network.RetrofitClientInstance;
 
 import org.json.JSONException;

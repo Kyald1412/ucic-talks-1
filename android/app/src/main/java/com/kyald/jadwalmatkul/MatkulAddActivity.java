@@ -20,7 +20,6 @@ import androidx.appcompat.widget.Toolbar;
 import com.kyald.jadwalmatkul.model.BaseResponse;
 import com.kyald.jadwalmatkul.model.MatkulHariResponse;
 import com.kyald.jadwalmatkul.network.GetDataService;
-import com.kyald.jadwalmatkul.utils.Constants;
 import com.kyald.jadwalmatkul.network.RetrofitClientInstance;
 
 import org.json.JSONArray;

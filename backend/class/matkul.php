@@ -6,6 +6,7 @@
 
         // Table
         private $db_table = "tbl_matkul";
+        private $db_table_foreign = "tbl_hari";
 
         // Columns
         public $id;
@@ -19,7 +20,7 @@
 
         // GET ALL
         public function getMatkul(){
-            $sqlQuery = "SELECT id, matkul, id_hari FROM " . $this->db_table . "";
+            $sqlQuery = "SELECT " . $this->db_table . ".id, " . $this->db_table . ".matkul, " . $this->db_table . ".id_hari, " . $this->db_table_foreign . ".hari FROM " . $this->db_table . " INNER JOIN " . $this->db_table_foreign . " ON " . $this->db_table . ".id_hari=" . $this->db_table_foreign . ".id";
             $stmt = $this->conn->prepare($sqlQuery);
             $stmt->execute();
             return $stmt;

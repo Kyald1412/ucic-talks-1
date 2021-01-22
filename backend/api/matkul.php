@@ -27,6 +27,7 @@
             $e = array(
                 "id" => $id,
                 "matkul" => $matkul,
+                "hari" => $hari,
                 "id_hari" => $id_hari
             );
 
